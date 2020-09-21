@@ -44,6 +44,28 @@ typedef struct{
 
 metadata get_metadata(char *file);
 
+typedef struct sorting{
+    int tmp_fr;       
+    int tmp_label;    
+    float tmp_cenX;   
+    float tmp_cenY;    
+    int tmp_wid;
+    int tmp_height;
+    float tmp_conf;
+}sorting;
+
+typedef struct {
+    int left_cnt;
+    int center_cnt;
+    int right_cnt;
+    int gt_left_cnt;
+    int gt_center_cnt;
+    int gt_right_cnt;
+    int all_left_cnt;
+    int all_center_cnt;
+    int all_right_cnt;
+}car_cnt;
+
 typedef struct{
     int *leaf;
     int n;
@@ -746,6 +768,14 @@ data load_all_cifar10();
 box_label *read_boxes(char *filename, int *n);
 box float_to_box(float *f, int stride);
 void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes);
+
+void SWAP(sorting* arr, int a, int b);
+
+void sortCenX(sorting* arr, int m, int n);
+
+int compute_iou(char *gt, int pred_xmin, int pred_ybot, int pred_xmax, int pred_ytop, float check);
+
+int draw_tracking_detections(image im, char *gt_input, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, car_cnt *cnts, char *txt_path, int frame_count);
 
 matrix network_predict_data(network *net, data test);
 image **load_alphabet();
