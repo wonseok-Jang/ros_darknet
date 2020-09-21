@@ -17,6 +17,19 @@
     #endif
 #endif
 
+#ifndef __cplusplus
+    #ifdef OPENCV
+    #include "opencv2/highgui/highgui_c.h"
+    #include "opencv2/imgproc/imgproc_c.h"
+    #include "opencv2/core/version.hpp"
+    #if CV_MAJOR_VERSION == 3
+    #include "opencv2/videoio/videoio_c.h"
+    #include "opencv2/imgcodecs/imgcodecs_c.h"
+    #endif
+    #endif
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

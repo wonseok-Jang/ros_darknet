@@ -66,6 +66,24 @@ image mat_to_image(Mat m)
     return im;
 }
 
+void ipl_into_image(IplImage* src, image im)
+{
+    unsigned char *data = (unsigned char *)src->imageData;
+    int h = src->height;
+    int w = src->width;
+    int c = src->nChannels;
+    int step = src->widthStep;
+    int i, j, k;
+
+    for(i = 0; i < h; ++i){
+        for(k= 0; k < c; ++k){
+            for(j = 0; j < w; ++j){
+                im.data[k*w*h + i*w + j] = data[i*step + j*c + k]/255.;
+            }
+        }
+    }
+}
+
 void *open_video_stream(const char *f, int c, int w, int h, int fps)
 {
     VideoCapture *cap;
