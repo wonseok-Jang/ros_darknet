@@ -437,19 +437,21 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 	//object tracking
 	int now_object_number = 0;
 
-//	if(For_Sync){
-//		if((sw=socket(PF_CAN,SOCK_RAW,CAN_RAW))<0){
-//			perror("Error while opening socket");
-//		}
-//		strcpy(ifr.ifr_name,ifname);
-//		ioctl(sw, SIOCGIFINDEX,&ifr);
-//		addr.can_family=AF_CAN;
-//		addr.can_ifindex=ifr.ifr_ifindex;
-//		if(bind(sw,(struct sockaddr *)&addr,sizeof(addr))<0) {
-//			perror("Error in socket bind");
-//		}
-//		For_Sync=0;
-//	}
+	if(For_Sync){
+		if((sw=socket(PF_CAN,SOCK_RAW,CAN_RAW))<0){
+			perror("Error while opening socket");
+			return -1;
+		}
+		strcpy(ifr.ifr_name,ifname);
+		ioctl(sw, SIOCGIFINDEX,&ifr);
+		addr.can_family=AF_CAN;
+		addr.can_ifindex=ifr.ifr_ifindex;
+		if(bind(sw,(struct sockaddr *)&addr,sizeof(addr))<0) {
+			perror("Error in socket bind");
+			return -1;
+		}
+		For_Sync=0;
+	}
 
 	frame.can_dlc = 8;
 	//car_cnt cnts;
@@ -625,6 +627,7 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 			//write(sw,&frame,sizeof(struct can_frame));
 			if(can_send("can0", &frame) == -1) {
 				perror("Error CAN send");
+				return -1;
 			}
 
 			object_info[frame_index][now_object_number].left = left;			
