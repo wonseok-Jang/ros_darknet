@@ -342,14 +342,13 @@ int compute_iou(char *gt, int pred_xmin, int pred_ybot, int pred_xmax, int pred_
     return ok_cnt;
 }
 
-int draw_tracking_detections(image im, char *gt_input, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, car_cnt *cnts, char *txt_path, int frame_count)
+int draw_detections_with_tracking(image im, char *gt_input, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, car_cnt *cnts, char *txt_path, int frame_count)
 {
     bool txt_flag=false;
     FILE* fw1;
 	int i,j;
     int box_cnt=0;
 
-	printf("txt path: %s\n", txt_path);
     if(txt_path!='\0'){
         fw1=fopen(txt_path,"a");// txt make;
         txt_flag=true;
@@ -437,6 +436,7 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 	//object tracking
 	int now_object_number = 0;
 
+#ifdef CAN
 	if(For_Sync){
 		if((sw=socket(PF_CAN,SOCK_RAW,CAN_RAW))<0){
 			perror("Error while opening socket");
@@ -452,6 +452,7 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 		}
 		For_Sync=0;
 	}
+#endif
 
 	frame.can_dlc = 8;
 	//car_cnt cnts;
@@ -492,7 +493,6 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 				printf("%s: %.0f%%\n", names[j], dets[i].prob[j]*100);	
 			}
 		}
-
 
 		if(class >= 0){
 			int width = im.h * .006;
@@ -624,11 +624,13 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 			frame.data[6] = ((trans_bot - trans_top) << 7) | (class);
 			frame.data[7] = (trans_bot - trans_top) >> 1;
 
+#ifdef CAN
 			//write(sw,&frame,sizeof(struct can_frame));
 			if(can_send("can0", &frame) == -1) {
 				perror("Error CAN send");
 				return -1;
 			}
+#endif
 
 			object_info[frame_index][now_object_number].left = left;			
 			object_info[frame_index][now_object_number].right = right;		
@@ -683,6 +685,7 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 
 	prior_object_number = now_object_number;
 
+#ifdef CAN
 	for(int k=0;k<ARRAY_SIZE;k++){
 		if(!id_array[frame_index][k]){
 
@@ -700,6 +703,7 @@ int draw_tracking_detections(image im, char *gt_input, detection *dets, int num,
 			usleep(2);
 		}
 	}
+#endif
 	frame_index = (frame_index + 1) % 2;
 
 	return 1;
